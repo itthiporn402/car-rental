@@ -190,7 +190,6 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                 <th className="p-3">📅 วันที่เริ่ม</th>
                                 <th className="p-3">📅 วันที่คืน</th>
                                 <th className="p-3">💳 สถานะ</th>
-                                <th className="p-3">🔍 รายละเอียด</th>
                                 <th className="p-3">⭐ รีวิว</th>
                                 <th className="p-3">❌ ยกเลิก</th>
                             </tr>
@@ -240,15 +239,6 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                         )} rounded-lg shadow-md py-1`}
                                     >
                                         {booking.status}
-                                    </td>
-
-                                    <td className="p-3">
-                                        <Link
-                                            href={`/bookings/${booking.id}`}
-                                            className="text-blue-600 font-semibold hover:underline transition-all"
-                                        >
-                                            🔍 ดูรายละเอียด
-                                        </Link>
                                     </td>
 
                                     <td className="p-3">
