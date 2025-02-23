@@ -37,8 +37,8 @@ export default function Cars() {
 
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                🚗 รถที่พร้อมให้เช่า
+            <h1 className="text-4xl font-extrabold text-center mb-8 animate-rainbow">
+                🚗 GoodCar
             </h1>
 
             <div className="flex justify-center mb-8">

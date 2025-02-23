@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="https://png.pngtree.com/png-clipart/20230120/original/pngtree-car-logo-design-png-image_8923406.png" type="image/png">
+
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
