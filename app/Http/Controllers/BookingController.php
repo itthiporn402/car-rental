@@ -71,12 +71,9 @@ class BookingController extends Controller
         // ตรวจสอบว่ามีการจองซ้ำในช่วงเวลาเดียวกันหรือไม่
         $existingBooking = Booking::where('car_id', $request->car_id)
             ->where(function ($query) use ($request) {
-                $query->whereBetween('start_date', [$request->pickup_date, $request->return_date])
-                    ->orWhereBetween('end_date', [$request->pickup_date, $request->return_date])
-                    ->orWhere(function ($query) use ($request) {
-                        $query->where('start_date', '<=', $request->pickup_date)
-                            ->where('end_date', '>=', $request->return_date);
-                    });
+                // ตรวจสอบว่ามีการจองที่ใช้ start_date และ end_date ซ้ำกัน
+                $query->where('start_date', '=', $request->pickup_date)
+                    ->where('end_date', '=', $request->return_date);
             })
             ->first();
 
@@ -85,7 +82,6 @@ class BookingController extends Controller
             return redirect()->back()->withErrors(['message' => 'คุณเคยจองรถคันนี้ในช่วงเวลานี้แล้ว']);
         }
 
-        // ✅ เพิ่ม end_date (return_date)
         $booking = Booking::create([
             'user_id' => $request->user_id,
             'car_id' => $request->car_id,
