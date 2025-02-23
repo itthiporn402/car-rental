@@ -55,8 +55,11 @@ const BookingHistory = ({ bookings: initialBookings }) => {
         }
 
         // ตรวจสอบสถานะการรีวิวจากเซิร์ฟเวอร์
-        axios.get(route('reviews.check', { booking_id: bookingId, car_id: carId }))
-            .then(response => {
+        axios
+            .get(
+                route("reviews.check", { booking_id: bookingId, car_id: carId })
+            )
+            .then((response) => {
                 if (response.data.reviewed) {
                     Swal.fire(
                         "📜 คุณเคยรีวิวไปแล้ว",
@@ -87,18 +90,23 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                     confirmButtonText: "ส่งรีวิว",
                     cancelButtonText: "ยกเลิก",
                     preConfirm: () => {
-                        const rating = document.querySelector('.star.text-yellow-400');
-                        const comment = document.getElementById("comment").value;
-                        console.log('Rating:', rating);
-                        console.log('Comment:', comment);
+                        const rating = document.querySelectorAll(
+                            ".star.text-yellow-400"
+                        );
+                        const comment =
+                            document.getElementById("comment").value;
 
-                        if (!rating || !comment) {
+                        console.log("Rating:", rating.length); // นับจำนวนดาวที่เลือก
+                        console.log("Comment:", comment);
+
+                        if (rating.length === 0 || !comment) {
                             Swal.showValidationMessage("กรุณากรอกข้อมูลให้ครบ");
                             return false;
                         }
-                        return { rating: rating ? rating.dataset.value : null, comment };
-                    },
 
+                        // ส่งคะแนนตามจำนวนดาวที่เลือก
+                        return { rating: rating.length, comment };
+                    },
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const { rating, comment } = result.value;
@@ -112,10 +120,17 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                 comment: comment,
                             })
                             .then((response) => {
-                                Swal.fire("ขอบคุณสำหรับการรีวิว!", "", "success");
+                                Swal.fire(
+                                    "ขอบคุณสำหรับการรีวิว!",
+                                    "",
+                                    "success"
+                                );
                             })
                             .catch((error) => {
-                                if (error.response && error.response.data.errors) {
+                                if (
+                                    error.response &&
+                                    error.response.data.errors
+                                ) {
                                     console.log(error.response.data.errors);
                                 }
                                 Swal.fire(
@@ -126,9 +141,27 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                             });
                     }
                 });
+
+                // การคลิกเลือกดาว
+                const stars = document.querySelectorAll(".star");
+                stars.forEach((star) => {
+                    star.addEventListener("click", () => {
+                        const ratingValue = star.dataset.value;
+                        document.querySelectorAll(".star").forEach((s) => {
+                            s.classList.remove("text-yellow-400");
+                        });
+                        // เพิ่มสีเหลืองให้กับดาวที่เลือก
+                        for (let i = 0; i < ratingValue; i++) {
+                            stars[i].classList.add("text-yellow-400");
+                        }
+                    });
+                });
             })
-            .catch(error => {
-                console.error("เกิดข้อผิดพลาดในการตรวจสอบสถานะการรีวิว:", error);
+            .catch((error) => {
+                console.error(
+                    "เกิดข้อผิดพลาดในการตรวจสอบสถานะการรีวิว:",
+                    error
+                );
                 Swal.fire(
                     "เกิดข้อผิดพลาด",
                     "ไม่สามารถตรวจสอบสถานะการรีวิวได้",
@@ -136,8 +169,6 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                 );
             });
     };
-
-
 
     return (
         <div className="max-w-5xl mx-auto p-8 bg-white shadow-2xl rounded-2xl">
