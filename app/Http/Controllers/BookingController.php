@@ -19,7 +19,26 @@ class BookingController extends Controller
     public function index()
     {
         $bookings = Booking::with('car', 'user')->latest()->get();
-        return inertia('Bookings/Index', ['bookings' => $bookings]);
+
+        return inertia('Bookings/Index', [
+            'bookings' => $bookings->map(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'car' => [
+                        'id' => $booking->car->id,  // ดึง car.id
+                        'name' => $booking->car->brand . ' ' . $booking->car->name,
+                        'image' => $booking->car->image ?? null,
+                    ],
+                    'user' => [
+                        'name' => $booking->user->name,
+                    ],
+                    'start_date' => $booking->start_date,
+                    'end_date' => $booking->end_date,
+                    'status' => $booking->status === 'completed' ? 'ชำระเงินแล้ว' : 'ยังไม่ได้ชำระเงิน',
+                ];
+            })
+        ]);
+
     }
 
     /**
@@ -66,24 +85,25 @@ class BookingController extends Controller
     }
 
     public function history()
-    {
-        $bookings = auth()->user()->bookings()->with('car')->get();
+{
+    $bookings = auth()->user()->bookings()->with('car')->get();
 
-        return Inertia::render('Bookings/History', [
-            'bookings' => $bookings->map(function ($booking) {
-                return [
-                    'id' => $booking->id,
-                    'car' => [
-                        'name' => $booking->car->brand . ' ' . $booking->car->name,
-                        'image' => $booking->car->image ?? null,
-                    ],
-                    'start_date' => $booking->start_date,
-                    'end_date' => $booking->end_date,
-                    'status' => $booking->status === 'completed' ? 'ชำระเงินแล้ว' : 'ยังไม่ได้ชำระเงิน'
-                ];
-            })
-        ]);
-    }
+    return Inertia::render('Bookings/History', [
+        'bookings' => $bookings->map(function ($booking) {
+            return [
+                'id' => $booking->id,
+                'car' => [
+                    'id' => $booking->car->id,  // ดึง car.id
+                    'name' => $booking->car->brand . ' ' . $booking->car->name,
+                    'image' => $booking->car->image ?? null,
+                ],
+                'start_date' => $booking->start_date,
+                'end_date' => $booking->end_date,
+                'status' => $booking->status === 'completed' ? 'ชำระเงินแล้ว' : 'ยังไม่ได้ชำระเงิน'
+            ];
+        })
+    ]);
+}
 
 
 
@@ -149,14 +169,5 @@ class BookingController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to update booking status: ' . $e->getMessage());
         }
-    }
-    public function destroy($id)
-    {
-        $booking = Booking::findOrFail($id);
-
-        // ลบการจอง
-        $booking->delete();
-
-        return redirect()->back()->with('success', 'ยกเลิกการจองสำเร็จ');
     }
 }

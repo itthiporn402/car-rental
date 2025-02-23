@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ReviewController;
 
 // ✅ ระบบแอดมิน (Dashboard และการจอง)
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -35,6 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/rental-history', [BookingController::class, 'history'])->name('rental.history');
     Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/reviews/check', [ReviewController::class, 'checkReview'])->name('reviews.check');
 });
 
 

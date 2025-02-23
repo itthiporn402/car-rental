@@ -21,7 +21,6 @@ const BookingHistory = ({ bookings: initialBookings }) => {
             if (result.isConfirmed) {
                 destroy(route("bookings.destroy", id), {
                     onSuccess: () => {
-                        // ลบออกจากฐานข้อมูลสำเร็จ => อัปเดต UI
                         setBookings((prev) =>
                             prev.filter((booking) => booking.id !== id)
                         );
@@ -41,6 +40,104 @@ const BookingHistory = ({ bookings: initialBookings }) => {
             }
         });
     };
+
+    const handleReview = (bookingId, carId) => {
+        console.log("Booking ID:", bookingId); // ตรวจสอบ bookingId
+        console.log("Car ID:", carId); // ตรวจสอบ carId
+
+        if (!carId) {
+            Swal.fire(
+                "❌ ไม่มีข้อมูลรถ",
+                "ไม่สามารถส่งรีวิวได้เนื่องจากข้อมูลรถไม่สมบูรณ์",
+                "error"
+            );
+            return;
+        }
+
+        // ตรวจสอบสถานะการรีวิวจากเซิร์ฟเวอร์
+        axios.get(route('reviews.check', { booking_id: bookingId, car_id: carId }))
+            .then(response => {
+                if (response.data.reviewed) {
+                    Swal.fire(
+                        "📜 คุณเคยรีวิวไปแล้ว",
+                        "คุณได้ให้คะแนนและความคิดเห็นเกี่ยวกับการจองนี้แล้ว",
+                        "info"
+                    );
+                    return; // ไม่ให้รีวิวใหม่
+                }
+
+                // แสดงฟอร์มให้รีวิว
+                Swal.fire({
+                    title: "🌟 ให้คะแนนการจองของคุณ",
+                    html: `
+                        <div class="flex items-center justify-center mb-4">
+                            <span>⭐</span>
+                            <div id="rating-container" class="flex cursor-pointer">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                            <span id="rating-message" class="ml-2">เลือกคะแนน (1-5)</span>
+                        </div>
+                        <textarea id="comment" rows="4" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="เขียนความคิดเห็นของคุณ"></textarea>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: "ส่งรีวิว",
+                    cancelButtonText: "ยกเลิก",
+                    preConfirm: () => {
+                        const rating = document.querySelector('.star.text-yellow-400');
+                        const comment = document.getElementById("comment").value;
+                        console.log('Rating:', rating);
+                        console.log('Comment:', comment);
+
+                        if (!rating || !comment) {
+                            Swal.showValidationMessage("กรุณากรอกข้อมูลให้ครบ");
+                            return false;
+                        }
+                        return { rating: rating ? rating.dataset.value : null, comment };
+                    },
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const { rating, comment } = result.value;
+
+                        // ส่งข้อมูลรีวิวไปยังเซิร์ฟเวอร์
+                        axios
+                            .post(route("reviews.store"), {
+                                booking_id: bookingId,
+                                car_id: carId,
+                                rating: rating,
+                                comment: comment,
+                            })
+                            .then((response) => {
+                                Swal.fire("ขอบคุณสำหรับการรีวิว!", "", "success");
+                            })
+                            .catch((error) => {
+                                if (error.response && error.response.data.errors) {
+                                    console.log(error.response.data.errors);
+                                }
+                                Swal.fire(
+                                    "เกิดข้อผิดพลาด",
+                                    "ไม่สามารถส่งรีวิวได้",
+                                    "error"
+                                );
+                            });
+                    }
+                });
+            })
+            .catch(error => {
+                console.error("เกิดข้อผิดพลาดในการตรวจสอบสถานะการรีวิว:", error);
+                Swal.fire(
+                    "เกิดข้อผิดพลาด",
+                    "ไม่สามารถตรวจสอบสถานะการรีวิวได้",
+                    "error"
+                );
+            });
+    };
+
+
 
     return (
         <div className="max-w-5xl mx-auto p-8 bg-white shadow-2xl rounded-2xl">
@@ -63,6 +160,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                 <th className="p-3">📅 วันที่คืน</th>
                                 <th className="p-3">💳 สถานะ</th>
                                 <th className="p-3">🔍 รายละเอียด</th>
+                                <th className="p-3">⭐ รีวิว</th>
                                 <th className="p-3">❌ ยกเลิก</th>
                             </tr>
                         </thead>
@@ -123,6 +221,22 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                     </td>
 
                                     <td className="p-3">
+                                        {booking.status === "ชำระเงินแล้ว" && (
+                                            <button
+                                                onClick={() =>
+                                                    handleReview(
+                                                        booking.id,
+                                                        booking.car.id
+                                                    )
+                                                }
+                                                className="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-yellow-600 transition-all"
+                                            >
+                                                ⭐ รีวิว
+                                            </button>
+                                        )}
+                                    </td>
+
+                                    <td className="p-3">
                                         {booking.status !== "ชำระเงินแล้ว" && (
                                             <button
                                                 onClick={() =>
@@ -145,7 +259,6 @@ const BookingHistory = ({ bookings: initialBookings }) => {
     );
 };
 
-// ฟังก์ชันกำหนดสีสถานะ
 const getStatusColor = (status) => {
     return status === "ชำระเงินแล้ว"
         ? "text-green-600 bg-green-100"

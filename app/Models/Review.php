@@ -10,21 +10,18 @@ class Review extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'car_id',
-        'booking_id',
-        'rating',
-        'comment'
+        'user_id', 'booking_id', 'car_id', 'rating', 'comment',
     ];
+
+    // กำหนดความสัมพันธ์กับ Car และ User (ถ้าจำเป็น)
+    public function car()
+    {
+        return $this->belongsTo(Car::class);
+    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function car()
-    {
-        return $this->belongsTo(Car::class);
     }
 
     public function booking()
