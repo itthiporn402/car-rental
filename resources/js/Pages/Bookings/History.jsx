@@ -3,43 +3,51 @@ import { Link, useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
+
 const BookingHistory = ({ bookings: initialBookings }) => {
     const [bookings, setBookings] = useState(initialBookings);
     const { delete: destroy, processing } = useForm();
 
     const handleCancel = (id) => {
         Swal.fire({
-            title: "⚠️ ยืนยันการยกเลิก?",
-            text: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้? ⛔",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "ใช่, ยกเลิกเลย!",
-            cancelButtonText: "ไม่, กลับไป",
+          title: "⚠️ ยืนยันการยกเลิก?",
+          text: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้? ⛔",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "ใช่, ยกเลิกเลย!",
+          cancelButtonText: "ไม่, กลับไป",
         }).then((result) => {
-            if (result.isConfirmed) {
-                destroy(route("bookings.destroy", id), {
-                    onSuccess: () => {
-                        setBookings((prev) =>
-                            prev.filter((booking) => booking.id !== id)
-                        );
-                        Swal.fire({
-                            title: "✅ ยกเลิกสำเร็จ!",
-                            text: "การจองของคุณถูกลบออกจากระบบแล้ว",
-                            icon: "success",
-                        });
-                    },
-                    onError: () =>
-                        Swal.fire({
-                            title: "❌ ล้มเหลว!",
-                            text: "ไม่สามารถยกเลิกการจองได้ กรุณาลองใหม่อีกครั้ง",
-                            icon: "error",
-                        }),
+          if (result.isConfirmed) {
+            // ส่งคำขอ delete ไปยัง backend
+            axios
+              .delete(route("bookings.destroy", id))
+              .then((response) => {
+                // เมื่อสำเร็จให้แสดง SweetAlert ยืนยันและอัปเดตข้อมูล
+                Swal.fire({
+                  title: "✅ ยกเลิกสำเร็จ!",
+                  text: response.data.message,
+                  icon: "success",
                 });
-            }
+
+                // อัปเดตสถานะการจองในหน้าปัจจุบันโดยไม่เปลี่ยนหน้า
+                setBookings((prev) =>
+                  prev.filter((booking) => booking.id !== id)
+                );
+              })
+              .catch((error) => {
+                Swal.fire({
+                  title: "❌ ล้มเหลว!",
+                  text: "ไม่สามารถยกเลิกการจองได้ กรุณาลองใหม่อีกครั้ง",
+                  icon: "error",
+                });
+              });
+          }
         });
-    };
+      };
+
+
 
     const handleReview = (bookingId, carId) => {
         console.log("Booking ID:", bookingId); // ตรวจสอบ bookingId

@@ -55,16 +55,28 @@ const Booking = () => {
                 });
             },
             onError: (errors) => {
-                Swal.fire({
-                    icon: "error",
-                    title: "❌ มีข้อผิดพลาด",
-                    text: Object.values(errors).join("\n"),
-                    confirmButtonColor: "#ef4444",
-                });
+                // ตรวจสอบการจองซ้ำ
+                if (errors.message && errors.message === "คุณเคยจองรถคันนี้ในช่วงเวลานี้แล้ว") {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "⚠️ การจองซ้ำ!",
+                        text: "คุณเคยจองรถคันนี้ในช่วงเวลานี้แล้ว กรุณาเลือกช่วงเวลาอื่น",
+                        confirmButtonColor: "#f59e0b",
+                    });
+                } else {
+                    // ข้อผิดพลาดทั่วไป
+                    Swal.fire({
+                        icon: "error",
+                        title: "❌ มีข้อผิดพลาด",
+                        text: Object.values(errors).join("\n"),
+                        confirmButtonColor: "#ef4444",
+                    });
+                }
             },
             onFinish: () => console.log("✅ Finish Booking"),
         });
     };
+
 
     return (
         <div className="max-w-lg mx-auto p-6">

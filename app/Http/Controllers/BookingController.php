@@ -68,6 +68,23 @@ class BookingController extends Controller
         $days = Carbon::parse($request->pickup_date)->diffInDays($request->return_date);
         $totalAmount = $days * $car->daily_rate;
 
+        // ตรวจสอบว่ามีการจองซ้ำในช่วงเวลาเดียวกันหรือไม่
+        $existingBooking = Booking::where('car_id', $request->car_id)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('start_date', [$request->pickup_date, $request->return_date])
+                    ->orWhereBetween('end_date', [$request->pickup_date, $request->return_date])
+                    ->orWhere(function ($query) use ($request) {
+                        $query->where('start_date', '<=', $request->pickup_date)
+                            ->where('end_date', '>=', $request->return_date);
+                    });
+            })
+            ->first();
+
+        if ($existingBooking) {
+            // ถ้ามีการจองซ้ำ ให้แสดงข้อความข้อผิดพลาดและยังคงอยู่หน้าเดิม
+            return redirect()->back()->withErrors(['message' => 'คุณเคยจองรถคันนี้ในช่วงเวลานี้แล้ว']);
+        }
+
         // ✅ เพิ่ม end_date (return_date)
         $booking = Booking::create([
             'user_id' => $request->user_id,
@@ -85,25 +102,25 @@ class BookingController extends Controller
     }
 
     public function history()
-{
-    $bookings = auth()->user()->bookings()->with('car')->get();
+    {
+        $bookings = auth()->user()->bookings()->with('car')->get();
 
-    return Inertia::render('Bookings/History', [
-        'bookings' => $bookings->map(function ($booking) {
-            return [
-                'id' => $booking->id,
-                'car' => [
-                    'id' => $booking->car->id,  // ดึง car.id
-                    'name' => $booking->car->brand . ' ' . $booking->car->name,
-                    'image' => $booking->car->image ?? null,
-                ],
-                'start_date' => $booking->start_date,
-                'end_date' => $booking->end_date,
-                'status' => $booking->status === 'completed' ? 'ชำระเงินแล้ว' : 'ยังไม่ได้ชำระเงิน'
-            ];
-        })
-    ]);
-}
+        return Inertia::render('Bookings/History', [
+            'bookings' => $bookings->map(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'car' => [
+                        'id' => $booking->car->id,  // ดึง car.id
+                        'name' => $booking->car->brand . ' ' . $booking->car->name,
+                        'image' => $booking->car->image ?? null,
+                    ],
+                    'start_date' => $booking->start_date,
+                    'end_date' => $booking->end_date,
+                    'status' => $booking->status === 'completed' ? 'ชำระเงินแล้ว' : 'ยังไม่ได้ชำระเงิน'
+                ];
+            })
+        ]);
+    }
 
 
 
@@ -170,4 +187,19 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Failed to update booking status: ' . $e->getMessage());
         }
     }
+
+    public function destroy($id)
+    {
+        $booking = Booking::find($id);
+
+        if ($booking) {
+            $booking->delete();
+            // ตอบกลับเป็น JSON พร้อมข้อความยืนยัน
+            return response()->json(['message' => 'Success!!!']);
+        }
+
+        return response()->json(['message' => 'Error!']);
+    }
+
+
 }
