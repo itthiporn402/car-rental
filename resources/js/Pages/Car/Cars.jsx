@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card.jsx";
+import { Button } from "@/components/ui/button.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Users, Car, Wrench, Search } from "lucide-react";
 

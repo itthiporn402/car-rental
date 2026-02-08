@@ -1,9 +1,9 @@
 import React from "react";
 import { useForm, usePage } from "@inertiajs/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card.jsx";
+import { Button } from "@/components/ui/button.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Input from "@/components/ui/input";
+import Input from "@/components/ui/input.jsx";
 import Swal from "sweetalert2";
 import { toast } from "react-hot-toast";
 
