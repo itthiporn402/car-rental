@@ -1,5 +1,5 @@
 <?php
-
+//ใช้สร้างข้อมูล รีวิวรถ แบบสุ่ม
 namespace Database\Factories;
 
 use App\Models\Review;

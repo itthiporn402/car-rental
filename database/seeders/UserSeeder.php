@@ -22,9 +22,9 @@ class UserSeeder extends Seeder
 
         // สร้าง Admin
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
+            'name' => 'Admin Onon',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('admin_7234'),
             'is_admin' => true,
         ]);
 

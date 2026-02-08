@@ -6,9 +6,10 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Users, Car, Wrench, Search } from "lucide-react";
 
 export default function Cars() {
-    const { cars = [] } = usePage().props;
-    const [search, setSearch] = useState("");
+    const { cars = [] } = usePage().props;  // ดึงข้อมูลรถทั้งหมด
+    const [search, setSearch] = useState(""); // ใช้ useState("") เพื่อเก็บค่าการค้นหารถ
 
+    //ฟังก์ชันแสดงไอคอนตามสถานะของรถ
     const getStatusIcon = (status) => {
         const icons = {
             available: (
@@ -26,25 +27,25 @@ export default function Cars() {
         };
         return icons[status] || null;
     };
-
-    const filteredCars = cars.filter((car) => {
+    // ฟังก์ชันกรองรถตามคำค้นหา
+    const filteredCars = cars.filter((car) => { // กรองรถตามคำค้นหาตัวพิมพ์เล็ก
         const query = search.toLowerCase();
         return (
-            car.name?.toLowerCase().includes(query) ||
+            car.name?.toLowerCase().includes(query) || //ยี่ห้อรถ
             car.brand?.toLowerCase().includes(query)
         );
     });
 
-    return (
+    return ( // ส่วนของการแสดงผล
         <div className="container mx-auto p-6">
             <h1 className="text-4xl font-extrabold text-center mb-8 animate-rainbow">
                 🚗 GoodCar
-            </h1>
+            </h1>   
 
             <div className="flex justify-center mb-8">
                 <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-                    <input
+                    <input //กล่องค้นหา (input)
                         type="text"
                         placeholder="🔍 ค้นหารถ..."
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
@@ -59,6 +60,7 @@ export default function Cars() {
                     ❌ ไม่พบรถที่ตรงกับคำค้นหา
                 </p>
             ) : (
+                //แสดงรายการรถยนต์
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     {filteredCars.map((car) => (
                         <Card
@@ -129,4 +131,4 @@ export default function Cars() {
     );
 }
 
-Cars.layout = (page) => <AuthenticatedLayout>{page}</AuthenticatedLayout>;
+Cars.layout = (page) => <AuthenticatedLayout>{page}</AuthenticatedLayout>; // กำหนด Layout ให้กับหน้านี้

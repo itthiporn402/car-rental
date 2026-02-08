@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up() // ✅ สร้างตารางรถเช่า
     {
         // Create cars table
         Schema::create('cars', function (Blueprint $table) {
@@ -68,7 +68,7 @@ return new class extends Migration
         });
     }
 
-    public function down()
+    public function down() 
     {
         Schema::dropIfExists('reviews');
         Schema::dropIfExists('payments');

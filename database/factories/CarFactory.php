@@ -1,4 +1,5 @@
 <?php
+// ใช้สร้างข้อมูลรถยนต์แบบสุ่มเพื่อใช้ทดสอบ โดยสุ่ม ยี่ห้อ, รุ่น, ปี, สี, ราคา, สถานะ และตั้งค่ารูปภาพให้สัมพันธ์กับ Car ID
 
 namespace Database\Factories;
 
@@ -9,8 +10,9 @@ class CarFactory extends Factory
 {
     protected $model = Car::class;
 
+    //  กำหนดข้อมูลจำลองสำหรับ Car
     public function definition()
-    {
+    {   //เลือก ยี่ห้อรถ จากรายการที่กำหนดไว้
         $brand = $this->faker->randomElement(['Toyota', 'Honda', 'Nissan', 'BMW', 'Mercedes', 'Audi']);
         $models = [
             'Toyota' => ['Camry', 'Corolla', 'Yaris', 'Fortuner'],
@@ -33,7 +35,7 @@ class CarFactory extends Factory
             'daily_rate' => $this->faker->randomFloat(2, 800, 3000),
             'description' => $this->faker->sentence(),
             'status' => $this->faker->randomElement(['available', 'rented']),
-            'image' => 'cars/default.jpg', // ตั้งค่าเริ่มต้นก่อน (จะเปลี่ยนใน afterCreating)
+            'image' => 'cars/default.jpg',
         ];
     }
 

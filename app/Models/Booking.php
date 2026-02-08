@@ -15,14 +15,15 @@ class Booking extends Model
     protected $fillable = [
         'user_id',
         'car_id',
-        'start_date',
+        'start_date',   //วันที่เริ่มเช่ารถ
         'end_date',     // วันที่ที่กำหนดจะคืนรถ
-        'returned_at',  // วันที่คืนรถจริง (ถ้ามี)
+        'returned_at',  // วันที่คืนรถ
         'total_amount',
         'status',
         'notes'
     ];
 
+    // แปลงประเภทข้อมูลอัตโนมัติ
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
@@ -30,29 +31,31 @@ class Booking extends Model
         'status' => 'string'
     ];
 
-
+    // จองโดยผู้ใช้ 1 คน (BelongsTo) เชื่อมกับ ตาราง users
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // แต่ละการจองเป็นของรถ 1 คัน (BelongsTo)
     public function car()
     {
         return $this->belongsTo(Car::class);
     }
 
+    // แต่ละการจองสามารถมีรีวิวได้ 1 รีวิว (hasOne) เชื่อมกับ ตาราง reviews
     public function review()
     {
         return $this->hasOne(Review::class);
     }
 
+    // แต่ละการจองสามารถมีการชำระเงินได้ 1 การชำระเงิน (hasOne) เชื่อมกับ ตาราง payments
     public function payment()
     {
         return $this->hasOne(Payment::class);
     }
 
-    // ความสัมพันธ์ไปยัง Car
-
+    // ตรวจสอบว่ารถถูกจองในช่วงเวลาที่เลือกหรือไม่
     public static function boot()
     {
         parent::boot();

@@ -16,17 +16,17 @@ const Booking = () => {
         );
     }
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({ //จัดการฟอร์มการจอง
         car_id: car.id,
         user_id: user.id,
         pickup_date: "",
         return_date: "",
     });
 
-    const handleBooking = (e) => {
+    const handleBooking = (e) => { // จัดการการจองรถ
         e.preventDefault();
 
-        if (!data.pickup_date || !data.return_date) {
+        if (!data.pickup_date || !data.return_date) { //ตรวจสอบว่าเลือกวันที่ครบหรือยัง
             Swal.fire({
                 icon: "warning",
                 title: "⚠️ กรุณาเลือกวันที่รับและคืนรถ",
@@ -35,7 +35,7 @@ const Booking = () => {
             return;
         }
 
-        if (data.pickup_date > data.return_date) {
+        if (data.pickup_date > data.return_date) { // ตรวจสอบว่าวันคืนรถต้องไม่น้อยกว่าวันรับรถ
             Swal.fire({
                 icon: "error",
                 title: "🚨 วันที่คืนรถต้องไม่น้อยกว่าวันที่รับรถ",
@@ -44,7 +44,7 @@ const Booking = () => {
             return;
         }
 
-        post(route("bookings.store"), {
+        post(route("bookings.store"), { //ส่งข้อมูลการจองไปยัง Backend
             onStart: () => console.log("🚀 Start Booking"),
             onSuccess: () => {
                 toast.success("🎉 จองรถสำเร็จ!");
@@ -77,7 +77,7 @@ const Booking = () => {
         });
     };
 
-
+    // แสดงหน้าจอจองรถ
     return (
         <div className="max-w-lg mx-auto p-6">
             <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-green-500 to-blue-500 text-transparent bg-clip-text mb-6">
@@ -144,6 +144,6 @@ const Booking = () => {
     );
 };
 
-Booking.layout = (page) => <AuthenticatedLayout>{page}</AuthenticatedLayout>;
+Booking.layout = (page) => <AuthenticatedLayout>{page}</AuthenticatedLayout>; // กำหนด Layout ให้กับหน้านี้
 
 export default Booking;

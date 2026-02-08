@@ -10,20 +10,26 @@ class Review extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'booking_id', 'car_id', 'rating', 'comment',
+        'user_id', // ✅ ผู้ใช้ที่ให้คะแนน
+        'booking_id',
+        'car_id',
+        'rating',
+        'comment',
     ];
 
-    // กำหนดความสัมพันธ์กับ Car และ User (ถ้าจำเป็น)
+    //  รีวิว 1 รายการ เป็นของรถ 1 คัน
     public function car()
     {
         return $this->belongsTo(Car::class);
     }
 
+    //  รีวิว 1 รายการ เป็นของผู้ใช้ 1 คน
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    //  รีวิว 1 รายการ เป็นของการจอง 1 รายการ
     public function booking()
     {
         return $this->belongsTo(Booking::class);

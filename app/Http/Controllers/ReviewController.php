@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
+    // บันทึกรีวิวของรถ โดยผู้ใช้ต้องมี การจอง (booking_id) และให้คะแนน (rating)
     public function store(Request $request)
     {
         // ตรวจสอบข้อมูลที่ได้รับ
@@ -29,6 +30,7 @@ class ReviewController extends Controller
         return response()->json(['message' => 'Review successfully submitted.']);
     }
 
+    // ตรวจสอบว่าผู้ใช้เคยรีวิวรถคันนี้หรือยัง
     public function checkReview(Request $request)
 {
     $validated = $request->validate([

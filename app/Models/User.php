@@ -14,7 +14,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * กำหนดค่าที่สามารถบันทึกได้
      *
      * @var list<string>
      */
@@ -26,7 +26,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * กำหนดค่าที่ไม่ต้องการให้แสดงผล
      *
      * @var list<string>
      */
@@ -36,18 +36,19 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * กำหนดค่าที่ต้องการแปลงข้อมูล
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime', 
             'password' => 'hashed',
         ];
     }
 
+    // ผู้ใช้ 1 คน (User) สามารถมี หลายการจอง (Booking) ได้
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);

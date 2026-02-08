@@ -10,9 +10,9 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'booking_id', // ✅ เพิ่ม booking_id ที่นี่
+        'booking_id',
         'user_id',
-        'amount',
+        'amount', // ✅ จำนวนเงินที่จ่าย
         'status',
         'payment_method',
         'transaction_id',

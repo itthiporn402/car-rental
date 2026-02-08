@@ -14,7 +14,7 @@ use Inertia\Inertia;
 class BookingController extends Controller
 {
     /**
-     * แสดงรายการจองทั้งหมด
+     * ดึงรายการจองทั้งหมดจากฐานข้อมูล พร้อมข้อมูลของ รถยนต์ (car) และ ผู้จอง (user)
      */
     public function index()
     {
@@ -42,18 +42,18 @@ class BookingController extends Controller
     }
 
     /**
-     * แสดงฟอร์มจองรถ (แก้ไขให้รับ Car $car และเปลี่ยน Inertia Page)
+     * เมื่อผู้ใช้คลิก จองรถ ระบบจะแสดงฟอร์ม เลือกวันรับ - คืนรถ และแสดงข้อมูลรถ
      */
     public function create(Car $car)
     {
         return inertia('Car/Booking', [
-            'car' => $car,
-            'user' => Auth::user(), // ✅ ส่ง user ไปด้วย
+            'car' => $car, // รับข้อมูล car ที่ต้องการจอง
+            'user' => Auth::user(), // ✅ ส่งข้อมูลผู้ใช้ที่ล็อกอินไปด้วย
         ]);
     }
 
     /**
-     * บันทึกข้อมูลการจองรถ
+     * บันทึกข้อมูลการจองลงฐานข้อมูล และคำนวณ ค่าเช่ารถ ตามจำนวนวันที่เลือก
      */
     public function store(Request $request)
     {
@@ -61,12 +61,12 @@ class BookingController extends Controller
             'user_id' => 'required|exists:users,id',
             'car_id' => 'required|exists:cars,id',
             'pickup_date' => 'required|date',
-            'return_date' => 'required|date|after_or_equal:pickup_date', // ✅ ต้องมี return_date เสมอ
+            'return_date' => 'required|date|after_or_equal:pickup_date', // ✅ return_date ห้ามน้อยกว่า pickup_date
         ]);
 
         $car = Car::findOrFail($request->car_id);
         $days = Carbon::parse($request->pickup_date)->diffInDays($request->return_date);
-        $totalAmount = $days * $car->daily_rate;
+        $totalAmount = $days * $car->daily_rate;  //คำนวณราคาทั้งหมด (days * daily_rate)
 
         // ตรวจสอบว่ามีการจองซ้ำในช่วงเวลาเดียวกันหรือไม่
         $existingBooking = Booking::where('car_id', $request->car_id)
@@ -78,16 +78,16 @@ class BookingController extends Controller
             ->first();
 
         if ($existingBooking) {
-            // ถ้ามีการจองซ้ำ ให้แสดงข้อความข้อผิดพลาดและยังคงอยู่หน้าเดิม
+            // ถ้ามีการจองซ้ำ ให้แสดงข้อความผิดพลาดและยังคงอยู่หน้าเดิม
             return redirect()->back()->withErrors(['message' => 'คุณเคยจองรถคันนี้ในช่วงเวลานี้แล้ว']);
         }
 
-        $booking = Booking::create([
+        $booking = Booking::create([ // สร้างการจอง และบันทึกข้อมูลลงฐานข้อมูล
             'user_id' => $request->user_id,
             'car_id' => $request->car_id,
             'start_date' => $request->pickup_date,
-            'end_date' => $request->return_date, // ✅ กำหนดวันคืนรถที่ตั้งใจไว้
-            'returned_at' => null, // ❌ ยังไม่มีข้อมูล จนกว่าจะคืนรถจริง
+            'end_date' => $request->return_date,
+            'returned_at' => null,
             'total_amount' => $totalAmount,
             'status' => 'pending',
         ]);
@@ -96,6 +96,10 @@ class BookingController extends Controller
         return redirect()->route('payments.show', ['booking' => $booking->id]);
 
     }
+
+    /**
+     * ดึงประวัติการจองของผู้ใช้ที่ล็อกอินอยู่
+     */
 
     public function history()
     {
@@ -118,9 +122,6 @@ class BookingController extends Controller
         ]);
     }
 
-
-
-
     /**
      * แสดงรายละเอียดการจอง
      */
@@ -131,7 +132,7 @@ class BookingController extends Controller
     }
 
     /**
-     * ยกเลิกการจอง
+     * ยกเลิกการจอง (pending เท่านั้น) ระบบจะเปลี่ยนสถานะเป็น cancelled
      */
     public function cancel($id)
     {
@@ -146,7 +147,7 @@ class BookingController extends Controller
             $booking->update(['status' => 'cancelled']);
 
             $car = Car::findOrFail($booking->car_id);
-            $car->update(['status' => 'available']);
+            $car->update(['status' => 'available']);    // คืนสถานะรถเป็น available
 
             DB::commit();
             return redirect()->route('bookings.index')->with('success', 'Booking cancelled successfully.');
@@ -184,6 +185,9 @@ class BookingController extends Controller
         }
     }
 
+    /**
+     * ลบข้อมูลการจอง
+     */
     public function destroy($id)
     {
         $booking = Booking::find($id);

@@ -11,7 +11,7 @@ use Inertia\Inertia;
 class CarController extends Controller
 {
     /**
-     * แสดงรายการรถยนต์ทั้งหมด
+     * ดึงข้อมูลรถยนต์ทั้งหมดจากฐานข้อมูลและส่งไปแสดงในหน้า Cars
      */
     public function index()
     {
@@ -27,25 +27,21 @@ class CarController extends Controller
             ];
         });
 
-
-        // ตรวจสอบค่าของ image โดยละเอียด
-
-
         return Inertia::render('Car/Cars', ['cars' => $cars]);
     }
 
 
 
     /**
-     * แสดงฟอร์มสร้างรถใหม่
+     *  เพิ่มข้อมูลรถยนต์ใหม่ ยังไม่ได้ใช้
      */
     public function create()
     {
-        return inertia('Car/Create'); // ✅ เปลี่ยนเป็น 'Car/Create' (ถ้ามีไฟล์นี้)
+        return inertia('Car/Create');
     }
 
     /**
-     * บันทึกข้อมูลรถใหม่
+     *  รับค่าจากฟอร์มและบันทึกลงฐานข้อมูล ยังไม่ได้ใช้
      */
     public function store(Request $request)
     {
@@ -55,7 +51,7 @@ class CarController extends Controller
             'year' => 'required|integer|min:2000|max:' . date('Y'),
             'price_per_day' => 'required|numeric|min:0',
             'status' => 'required|in:available,rented,maintenance',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // ตรวจสอบไฟล์
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         DB::beginTransaction();
@@ -81,12 +77,12 @@ class CarController extends Controller
 
 
     /**
-     * แสดงรายละเอียดรถ
+     * แสดงรายละเอียดของรถยนต์ที่เลือก
      */
     public function show($id)
     {
         $car = Car::findOrFail($id);
-        return inertia('Car/Booking', ['car' => $car]); // ✅ เปลี่ยนเป็น 'Car/Booking'
+        return inertia('Car/Booking', ['car' => $car]);
     }
 
     /**
@@ -95,11 +91,11 @@ class CarController extends Controller
     public function edit($id)
     {
         $car = Car::findOrFail($id);
-        return inertia('Car/Edit', ['car' => $car]); // ✅ เปลี่ยนเป็น 'Car/Edit' (ถ้ามีไฟล์นี้)
+        return inertia('Car/Edit', ['car' => $car]);
     }
 
     /**
-     * อัปเดตข้อมูลรถ
+     * แก้ไขข้อมูลรถยนต์แล้วบันทึกลงฐานข้อมูล
      */
     public function update(Request $request, $id)
     {
@@ -143,7 +139,7 @@ class CarController extends Controller
 
 
     /**
-     * ลบรถ
+     *  ลบข้อมูลรถยนต์และรูปภาพที่เกี่ยวข้อง
      */
     public function destroy($id)
     {

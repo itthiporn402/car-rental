@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
-// ฟังก์ชันแปลงวันที่ให้เป็น "19 กุมภาพันธ์ 2025"
+// ฟังก์ชันแปลงวันที่เป็นภาษาไทย
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("th-TH", {
@@ -17,15 +17,15 @@ const formatDate = (dateString) => {
 };
 
 const Payments = () => {
-    const { booking, car, user } = usePage().props;
-    const { post, processing } = useForm({
+    const { booking, car, user } = usePage().props; // รับข้อมูลจาก Backend
+    const { post, processing } = useForm({ //ตั้งค่าฟอร์มชำระเงิน
         booking_id: booking.id,
         user_id: user.id,
         amount: booking.total_amount,
-        payment_method: "Credit Card", // Mockup วิธีจ่ายเงิน
+        payment_method: "Credit Card",
     });
 
-    const handlePayment = () => {
+    const handlePayment = () => {  //ฟังก์ชัน(เมื่อกดปุ่ม "จ่ายเงิน")
         post(route("payments.store"), {
             onSuccess: () => {
                 Swal.fire({
@@ -39,7 +39,7 @@ const Payments = () => {
         });
     };
 
-    return (
+    return ( // UI ส่วนการชำระเงิน แสดงรายละเอียดรถที่จอง และปุ่มชำระเงิน
         <div className="max-w-lg mx-auto p-6">
             <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-green-500 to-blue-500 text-transparent bg-clip-text mb-6">
                 💳 ชำระเงิน
@@ -74,5 +74,6 @@ const Payments = () => {
     );
 };
 
-Payments.layout = (page) => <AuthenticatedLayout>{page}</AuthenticatedLayout>;
+Payments.layout = (page) => <AuthenticatedLayout>{page}</AuthenticatedLayout>; //ใช้ AuthenticatedLayout → ต้องล็อกอินก่อนถึงเข้าได้
+
 export default Payments;

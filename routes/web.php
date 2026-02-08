@@ -11,20 +11,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ReviewController;
 
-// ✅ ระบบแอดมิน (Dashboard และการจอง)
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-    // ✅ เปลี่ยนจาก BookingController เป็น AdminBookingController
-    Route::get('/admin/bookings', [AdminBookingController::class, 'index'])->name('admin.bookings.index');
-    Route::patch('/admin/bookings/{booking}/approve', [AdminBookingController::class, 'approve'])->name('admin.bookings.approve');
-    Route::patch('/admin/bookings/{booking}/reject', [AdminBookingController::class, 'reject'])->name('admin.bookings.reject');
-});
 
 // ✅ ระบบรถเช่า
 Route::get('/', [CarController::class, 'index'])->name('cars.index');
 Route::get('/cars/{car}', [CarController::class, 'show'])->name('cars.show');
-
 
 
 // ✅ ระบบจอง (ต้องล็อกอินก่อน)
@@ -38,6 +28,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/check', [ReviewController::class, 'checkReview'])->name('reviews.check');
+});
+
+// ✅ ระบบแอดมิน (Dashboard และการจอง)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // ✅ เปลี่ยนจาก BookingController เป็น AdminBookingController
+    Route::get('/admin/bookings', [AdminBookingController::class, 'index'])->name('admin.bookings.index');
+    Route::patch('/admin/bookings/{booking}/approve', [AdminBookingController::class, 'approve'])->name('admin.bookings.approve');
+    Route::patch('/admin/bookings/{booking}/reject', [AdminBookingController::class, 'reject'])->name('admin.bookings.reject');
 });
 
 

@@ -3,11 +3,14 @@ import { Link, useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
-
+//หน้าแสดงประวัติการเช่ารถ โดยมีฟังก์ชันหลัก 2 อย่าง ยกเลิกการจอง ให้รีวิวหลังการใช้งาน
 const BookingHistory = ({ bookings: initialBookings }) => {
     const [bookings, setBookings] = useState(initialBookings);
     const { delete: destroy, processing } = useForm();
 
+    //การยกเลิกการจอง โดยใช้ SweetAlert แสดงการยืนยันการยกเลิก
+    //ถ้าสถานะเป็น "รอดำเนินการ" ✅ → สามารถยกเลิกได้
+    //ถ้าสถานะเป็น "ยืนยันแล้ว"  ❌ → ไม่สามารถยกเลิกได้
     const handleCancel = (id) => {
         Swal.fire({
           title: "⚠️ ยืนยันการยกเลิก?",
@@ -36,7 +39,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                   prev.filter((booking) => booking.id !== id)
                 );
               })
-              .catch((error) => {
+              .catch((error) => { // ถ้าเกิดข้อผิดพลาดให้แสดง SweetAlert แจ้งเตือน
                 Swal.fire({
                   title: "❌ ล้มเหลว!",
                   text: "ไม่สามารถยกเลิกการจองได้ กรุณาลองใหม่อีกครั้ง",
@@ -68,7 +71,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                 route("reviews.check", { booking_id: bookingId, car_id: carId })
             )
             .then((response) => {
-                if (response.data.reviewed) {
+                if (response.data.reviewed) {  //ถ้ารถ ถูกรีวิวแล้ว ❌ → ไม่สามารถรีวิวซ้ำได้
                     Swal.fire(
                         "📜 คุณเคยรีวิวไปแล้ว",
                         "คุณได้ให้คะแนนและความคิดเห็นเกี่ยวกับการจองนี้แล้ว",
@@ -77,7 +80,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                     return; // ไม่ให้รีวิวใหม่
                 }
 
-                // แสดงฟอร์มให้รีวิว
+                // แสดงฟอร์มให้รีวิว ถ้ารถ ยังไม่ถูกรีวิว ✅ → สามารถให้รีวิวได้
                 Swal.fire({
                     title: "🌟 ให้คะแนนการจองของคุณ",
                     html: `
@@ -107,7 +110,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                         console.log("Rating:", rating.length); // นับจำนวนดาวที่เลือก
                         console.log("Comment:", comment);
 
-                        if (rating.length === 0 || !comment) {
+                        if (rating.length === 0 || !comment) { // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
                             Swal.showValidationMessage("กรุณากรอกข้อมูลให้ครบ");
                             return false;
                         }
@@ -127,14 +130,14 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                 rating: rating,
                                 comment: comment,
                             })
-                            .then((response) => {
+                            .then((response) => { // ถ้าสำเร็จให้แสดง SweetAlert แจ้งเตือน
                                 Swal.fire(
                                     "ขอบคุณสำหรับการรีวิว!",
                                     "",
                                     "success"
                                 );
                             })
-                            .catch((error) => {
+                            .catch((error) => { // ถ้าเกิดข้อผิดพลาดให้แสดง SweetAlert แจ้งเตือน
                                 if (
                                     error.response &&
                                     error.response.data.errors
@@ -178,7 +181,8 @@ const BookingHistory = ({ bookings: initialBookings }) => {
             });
     };
 
-    return (
+    return ( // แสดง UI ของประวัติการเช่ารถ
+        // แสดงข้อมูลรถที่เช่า รูปภาพ วันที่เริ่ม วันที่คืน สถานะ รีวิว และ ยกเลิก
         <div className="max-w-5xl mx-auto p-8 bg-white shadow-2xl rounded-2xl">
             <h2 className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 📜 ประวัติการเช่ารถ
@@ -214,10 +218,10 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                 >
                                     <td className="p-3 font-semibold text-gray-800">
                                         {booking.car.name}
-                                    </td>
+                                    </td>  {/* แสดงข้อมูลรถที่เช่า */}
 
                                     <td className="p-3">
-                                        {booking.car.image ? (
+                                        {booking.car.image ? ( // ตรวจสอบว่ามีรูปภาพหรือไม่
                                             <img
                                                 src={booking.car.image}
                                                 alt={booking.car.name}
@@ -226,19 +230,19 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                         ) : (
                                             <span className="text-gray-400">
                                                 ไม่มีรูป
-                                            </span>
+                                            </span> // ถ้าไม่มีรูปให้แสดงข้อความว่า "ไม่มีรูป"
                                         )}
                                     </td>
 
                                     <td className="p-3 text-gray-700">
                                         {new Date(
                                             booking.start_date
-                                        ).toLocaleDateString()}
+                                        ).toLocaleDateString()} {/* แปลงวันที่เป็นภาษาไทย */}
                                     </td>
                                     <td className="p-3 text-gray-700">
                                         {new Date(
                                             booking.end_date
-                                        ).toLocaleDateString()}
+                                        ).toLocaleDateString()} {/* แปลงวันที่เป็นภาษาไทย */}
                                     </td>
 
                                     <td
@@ -247,7 +251,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                         )} rounded-lg shadow-md py-1`}
                                     >
                                         {booking.status}
-                                    </td>
+                                    </td> {/* แสดงสถานะการจอง ถ้าเป็น "ชำระเงินแล้ว" ให้แสดงสีเขียว ถ้าเป็น "รอดำเนินการ" ให้แสดงสีแดง */}
 
                                     <td className="p-3">
                                         {booking.status === "ชำระเงินแล้ว" && (
@@ -261,7 +265,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                                 className="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-yellow-600 transition-all"
                                             >
                                                 ⭐ รีวิว
-                                            </button>
+                                            </button> // ถ้าสถานะเป็น "ชำระเงินแล้ว" ให้แสดงปุ่ม "รีวิว"
                                         )}
                                     </td>
 
@@ -275,7 +279,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
                                                 disabled={processing}
                                             >
                                                 ❌ ยกเลิก
-                                            </button>
+                                            </button> // ถ้าสถานะเป็น "รอดำเนินการ" ให้แสดงปุ่ม "ยกเลิก"
                                         )}
                                     </td>
                                 </tr>
@@ -288,7 +292,7 @@ const BookingHistory = ({ bookings: initialBookings }) => {
     );
 };
 
-const getStatusColor = (status) => {
+const getStatusColor = (status) => { 
     return status === "ชำระเงินแล้ว"
         ? "text-green-600 bg-green-100"
         : "text-red-600 bg-red-100";

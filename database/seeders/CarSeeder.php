@@ -9,7 +9,7 @@ class CarSeeder extends Seeder
 {
     public function run()
     {
-        $cars = [
+        $cars = [ // ✅ อาร์เรย์ของข้อมูลรถ ที่จะถูกเพิ่มลงในฐานข้อมูล
             [
                 'brand' => 'Toyota',
                 'model' => 'Corolla',
@@ -48,7 +48,7 @@ class CarSeeder extends Seeder
             ],
         ];
 
-        foreach ($cars as $car) {
+        foreach ($cars as $car) { // ✅ วนลูปเพื่อเพิ่มข้อมูลรถลงในฐานข้อมูล
             Car::updateOrCreate(
                 ['brand' => $car['brand'], 'model' => $car['model']], // ✅ ใช้คู่ brand + model
                 $car
